@@ -99,3 +99,8 @@ Handler that fires on error occurs. This also could be fired if the browser not 
 
 ### Function render({ start, stop, pause, resume })
 Render the child components with functions. Each function actually manipulate recording related jobs into parent like VideoRecorder or AudioRecorder.
+
+
+## Updates
+### 1.0.2
+- Added stop recording on unmounting component

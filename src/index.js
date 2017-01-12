@@ -12,6 +12,21 @@ navigator.getUserMedia = navigator.getUserMedia ||
 						 navigator.mozGetUserMedia ||
 						 navigator.msGetUserMedia;
 
+// stop hack
+// from http://stackoverflow.com/questions/11642926/stop-close-webcam-which-is-opened-by-navigator-getusermedia
+var MediaStream = window.MediaStream || window.webkitMediaStream;;
+if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getAudioTracks().forEach(function(track) {
+            track.stop();
+        });
+
+        this.getVideoTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
+}
+
 class ReactMediaRecorder extends Component {
 	constructor(props) {
 		super(props);
@@ -73,9 +88,11 @@ class ReactMediaRecorder extends Component {
 		}
 	}
 	componentWillUnmount() {
-		this.stream = null;
 		this.mediaRecorder = null;
 		this.mediaChunk = [];
+
+		this.stream.stop();
+		this.stream = null;
 	}
 	initMediaRecorder() {
 		try {
