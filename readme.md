@@ -1,4 +1,6 @@
 # react-multimedia-capture
+Now supports React@16!
+
 react-multimedia capture is module for capturing multimedia from WebBrowser via React.
 It uses navigator.mediaDevices.getUserMedia and MediaRecorder API, so make sure that your browser supports.
 

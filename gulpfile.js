@@ -15,6 +15,7 @@ gulp.task('default', () => {
 		plugins: []
 	})
 	.exclude('react')
+	.exclude('prop-types')
 	.bundle()
 	.on('error', function(e) {
 		gutil.log('Error', e);

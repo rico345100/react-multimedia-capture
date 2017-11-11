@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 if(location.protocol !== 'https:' && location.hostname !== 'localhost') {
 	console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nChanging protocol to https.');
@@ -195,18 +196,18 @@ class ReactMediaRecorder extends Component {
 	}
 }
 ReactMediaRecorder.propTypes = {
-	constraints: React.PropTypes.object,
-	className: React.PropTypes.string,
-	timeSlice: React.PropTypes.number,
-	mimeType: React.PropTypes.string,
-	render: React.PropTypes.func,
-	onGranted: React.PropTypes.func,
-	onDenied: React.PropTypes.func,
-	onStart: React.PropTypes.func,
-	onStop: React.PropTypes.func,
-	onPause: React.PropTypes.func,
-	onResume: React.PropTypes.func,
-	onError: React.PropTypes.func
+	constraints: PropTypes.object,
+	className: PropTypes.string,
+	timeSlice: PropTypes.number,
+	mimeType: PropTypes.string,
+	render: PropTypes.func,
+	onGranted: PropTypes.func,
+	onDenied: PropTypes.func,
+	onStart: PropTypes.func,
+	onStop: PropTypes.func,
+	onPause: PropTypes.func,
+	onResume: PropTypes.func,
+	onError: PropTypes.func
 };
 ReactMediaRecorder.defaultProps = {
 	constraints: {

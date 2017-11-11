@@ -11,6 +11,10 @@ var _react = require('react');
 
 var _react2 = _interopRequireDefault(_react);
 
+var _propTypes = require('prop-types');
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -236,18 +240,18 @@ var ReactMediaRecorder = function (_Component) {
 }(_react.Component);
 
 ReactMediaRecorder.propTypes = {
-	constraints: _react2.default.PropTypes.object,
-	className: _react2.default.PropTypes.string,
-	timeSlice: _react2.default.PropTypes.number,
-	mimeType: _react2.default.PropTypes.string,
-	render: _react2.default.PropTypes.func,
-	onGranted: _react2.default.PropTypes.func,
-	onDenied: _react2.default.PropTypes.func,
-	onStart: _react2.default.PropTypes.func,
-	onStop: _react2.default.PropTypes.func,
-	onPause: _react2.default.PropTypes.func,
-	onResume: _react2.default.PropTypes.func,
-	onError: _react2.default.PropTypes.func
+	constraints: _propTypes2.default.object,
+	className: _propTypes2.default.string,
+	timeSlice: _propTypes2.default.number,
+	mimeType: _propTypes2.default.string,
+	render: _propTypes2.default.func,
+	onGranted: _propTypes2.default.func,
+	onDenied: _propTypes2.default.func,
+	onStart: _propTypes2.default.func,
+	onStop: _propTypes2.default.func,
+	onPause: _propTypes2.default.func,
+	onResume: _propTypes2.default.func,
+	onError: _propTypes2.default.func
 };
 ReactMediaRecorder.defaultProps = {
 	constraints: {
@@ -269,5 +273,5 @@ ReactMediaRecorder.defaultProps = {
 
 exports.default = ReactMediaRecorder;
 
-},{"react":undefined}]},{},[1])(1)
+},{"prop-types":undefined,"react":undefined}]},{},[1])(1)
 });
