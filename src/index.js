@@ -117,7 +117,7 @@ class ReactMediaRecorder extends Component {
 
 			mediaRecorder.ondataavailable = (ev) => {
 				if(ev.data && ev.data.size > 0) {
-					this.mediaChunk.push(event.data);
+					this.mediaChunk.push(ev.data);
 				}
 			};
 
