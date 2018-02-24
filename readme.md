@@ -106,3 +106,6 @@ Render the child components with functions. Each function actually manipulate re
 ## Updates
 ### 1.0.2
 - Added stop recording on unmounting component
+
+### 1.1.1
+- Fixed event typo in ondataavailable
