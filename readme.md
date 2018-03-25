@@ -109,3 +109,6 @@ Render the child components with functions. Each function actually manipulate re
 
 ### 1.1.1
 - Fixed event typo in ondataavailable
+
+### 1.2.0
+- Fixed "Cannot find module" issue using with Webpack
