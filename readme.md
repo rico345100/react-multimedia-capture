@@ -78,8 +78,8 @@ Set mimeType for MediaRecorder API. It uses 'video/webm;codecs=vp8' by default. 
 ### Number timeSlice (default 10)
 Set time slice of [mediaRecorder.start](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder/start).
 
-### Function onGranted
-Handler that fires on browser acquired permission to access media devices.
+### Function onGranted(MediaStream stream)
+Handler that fires on browser acquired permission to access media devices. From @1.2.1, MediaStream passing through first argument.
 
 ### Function onDenied(Error err)
 Handler that fires on browser denied permission to access media devices.
@@ -112,3 +112,6 @@ Render the child components with functions. Each function actually manipulate re
 
 ### 1.2.0
 - Fixed "Cannot find module" issue using with Webpack
+
+### 1.2.1
+- Passing MediaStream to onGranted props.
