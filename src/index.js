@@ -64,7 +64,7 @@ class ReactMediaRecorder extends Component {
 				asked: true, 
 				recording: false,
 			});
-			this.props.onGranted();
+			this.props.onGranted(this.stream);
 
 			this.initMediaRecorder();
 		};
