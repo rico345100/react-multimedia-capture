@@ -91,8 +91,9 @@ class ReactMediaRecorder extends Component {
 	componentWillUnmount() {
 		this.mediaRecorder = null;
 		this.mediaChunk = [];
-
+		
 		this.stream.stop();
+		this.stream.getTracks().forEach(track => track.stop());
 		this.stream = null;
 	}
 	initMediaRecorder() {
