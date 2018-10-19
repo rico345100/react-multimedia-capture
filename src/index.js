@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 if(location.protocol !== 'https:' && location.hostname !== 'localhost') {
-	console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nChanging protocol to https.');
+	console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nPlease change the protocol to https.');
 }
 if(!navigator.mediaDevices && !navigator.getUserMedia) {
 	console.warn(`Your browser doesn't support navigator.mediaDevices.getUserMedia and navigator.getUserMedia.`);
@@ -15,7 +15,8 @@ navigator.getUserMedia = navigator.getUserMedia ||
 
 // stop hack
 // from http://stackoverflow.com/questions/11642926/stop-close-webcam-which-is-opened-by-navigator-getusermedia
-var MediaStream = window.MediaStream || window.webkitMediaStream;;
+var MediaStream = window.MediaStream || window.webkitMediaStream;
+
 if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
     MediaStream.prototype.stop = function() {
         this.getAudioTracks().forEach(function(track) {
@@ -49,8 +50,22 @@ class ReactMediaRecorder extends Component {
 		this.pause = this.pause.bind(this);
 		this.resume = this.resume.bind(this);
 		this.initMediaRecorder = this.initMediaRecorder.bind(this);
+		this.requestPermission = this.requestPermission.bind(this);
+		this.getStream = this.getStream.bind(this);
+		this.stopStream = this.stopStream.bind(this);
 	}
 	componentDidMount() {
+		this.getStream();
+	}
+	componentWillUnmount() {
+		this.mediaRecorder = null;
+		this.mediaChunk = [];
+		
+		if(this.stream) {
+			this.stopStream();
+		}
+	}
+	getStream() {
 		let width = this.props.width;
 		let height = this.props.height;
 		let constraints = this.props.constraints;
@@ -82,19 +97,22 @@ class ReactMediaRecorder extends Component {
 			navigator.getUserMedia(constraints, handleSuccess, handleFailed);
 		}
 		else {
-			let errMessage = `Browser doesn't support UserMedia API. Please try with another browser.`;
+			let errMessage = `Your Browser doesn't support UserMedia API. Please try with another browser.`;
 			console.warn(errMessage);
 
 			this.props.onError(new Error(errMessage));
 		}
 	}
-	componentWillUnmount() {
-		this.mediaRecorder = null;
-		this.mediaChunk = [];
-		
+	stopStream() {
 		this.stream.stop();
 		this.stream.getTracks().forEach(track => track.stop());
 		this.stream = null;
+
+		this.props.onStreamClosed();
+
+		this.setState({
+			permission: false
+		});
 	}
 	initMediaRecorder() {
 		try {
@@ -137,8 +155,20 @@ class ReactMediaRecorder extends Component {
 			});
 		}
 	}
+	requestPermission() {
+		this.props.onRequestPermission();
+		this.getStream();
+	}
 	start() {
 		if(!this.state.available) return;
+		if(!this.state.permission) {
+			const error = new Error('You have to get permission to start recording.');
+			return this.props.onError(error);
+		}
+		if(this.state.recording) {
+			const error = new Error('MediaRecorder currently on active.');
+			return this.props.onError(error);
+		}
 
 		this.mediaChunk = [];
 		this.mediaRecorder.start(this.props.timeSlice);
@@ -151,6 +181,11 @@ class ReactMediaRecorder extends Component {
 	}
 	pause() {
 		if(!this.state.recording) return;
+		if(!this.state.permission) {
+			const error = new Error('You have to get permission to start recording.');
+			return this.props.onError(error);
+		}
+
 		this.mediaRecorder.stop();
 
 		this.setState({ paused: true });
@@ -159,6 +194,11 @@ class ReactMediaRecorder extends Component {
 	}
 	resume() {
 		if(!this.state.recording) return;
+		if(!this.state.permission) {
+			const error = new Error('You have to get permission to start recording.');
+			return this.props.onError(error);
+		}
+
 		this.initMediaRecorder();
 		this.mediaRecorder.start(this.props.timeSlice);
 
@@ -168,6 +208,10 @@ class ReactMediaRecorder extends Component {
 	}
 	stop() {
 		if(!this.state.available) return;
+		if(!this.state.permission) {
+			const permissionError = new Error('You already stopped recording.');
+			return this.props.onError(permissionError);
+		}
 		
 		this.mediaRecorder.stop();
 
@@ -177,6 +221,8 @@ class ReactMediaRecorder extends Component {
 
 		let blob = new Blob(this.mediaChunk, { type: 'video/webm' });
 		this.props.onStop(blob);
+		
+		this.stopStream();
 	}
 	render() {
 		const asked = this.state.asked;
@@ -187,6 +233,7 @@ class ReactMediaRecorder extends Component {
 		return (
 			<div className={this.props.className}>
 				{this.props.render({
+					request: this.requestPermission,
 					start: this.start,
 					stop: this.stop,
 					pause: this.pause,
@@ -202,13 +249,15 @@ ReactMediaRecorder.propTypes = {
 	timeSlice: PropTypes.number,
 	mimeType: PropTypes.string,
 	render: PropTypes.func,
+	onRequestPermission: PropTypes.func,
 	onGranted: PropTypes.func,
 	onDenied: PropTypes.func,
 	onStart: PropTypes.func,
 	onStop: PropTypes.func,
 	onPause: PropTypes.func,
 	onResume: PropTypes.func,
-	onError: PropTypes.func
+	onError: PropTypes.func,
+	onStreamClosed: PropTypes.func
 };
 ReactMediaRecorder.defaultProps = {
 	constraints: {
@@ -219,13 +268,15 @@ ReactMediaRecorder.defaultProps = {
 	timeSlice: 0,
 	mimeType: '',
 	render: function() {},
+	onRequestPermission: function(){},
 	onGranted: function(){},
 	onDenied: function(){},
 	onStart: function(){},
 	onStop: function(){},
 	onPause: function(){},
 	onResume: function(){},
-	onError: function(){}
+	onError: function(){},
+	onStreamClosed: function(){}
 };
 
 export default ReactMediaRecorder;

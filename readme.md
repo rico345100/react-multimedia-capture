@@ -40,14 +40,16 @@ class VideoExample extends Component {
 					onStop={this.handleStop}
 					onPause={this.handlePause}
 					onResume={this.handleResume}
-					onError={this.handleError} 
-					render={({ start, stop, pause, resume }) => 
+					onError={this.handleError}
+					onStreamClosed={this.handleStreamClose}
+					render={({ request, start, stop, pause, resume }) => 
 					<div>
 						<p>Granted: {granted.toString()}</p>
 						<p>Rejected Reason: {rejectedReason}</p>
 						<p>Recording: {recording.toString()}</p>
 						<p>Paused: {paused.toString()}</p>
 
+						{!granted && <button onClick={request}>Get Permission</button>}
 						<button onClick={start}>Start</button>
 						<button onClick={stop}>Stop</button>
 						<button onClick={pause}>Pause</button>
@@ -99,8 +101,17 @@ Handler that fires on user resumed recording.
 ### Function onError(Error err)
 Handler that fires on error occurs. This also could be fired if the browser not support getUserMedia and mediaRecorder API.
 
-### Function render({ start, stop, pause, resume })
+### Function onStreamClosed
+Handler that fires when stream is closed. This happens when you stop the record. After stopped record, you can't start record before get permission again to get new MediaStream to work.
+
+### Function render({ request, start, stop, pause, resume })
 Render the child components with functions. Each function actually manipulate recording related jobs into parent like VideoRecorder or AudioRecorder.
+
+- request: Function to get permission of recording media.
+- start: Function to start recording.
+- stop: Function to stop recording.
+- pause: Function to pause recording.
+- resume: Function to resume recording.
 
 
 ## Updates
@@ -115,3 +126,7 @@ Render the child components with functions. Each function actually manipulate re
 
 ### 1.2.1
 - Passing MediaStream to onGranted props.
+
+### 1.2.2
+- Fixed Stop recording doesn't work anymore
+- Added functionality to request permission after stop recording

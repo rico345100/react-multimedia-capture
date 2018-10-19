@@ -23,7 +23,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-	console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nChanging protocol to https.');
+	console.warn('getUserMedia() must be run from a secure origin: https or localhost.\nPlease change the protocol to https.');
 }
 if (!navigator.mediaDevices && !navigator.getUserMedia) {
 	console.warn('Your browser doesn\'t support navigator.mediaDevices.getUserMedia and navigator.getUserMedia.');
@@ -33,7 +33,8 @@ navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia 
 
 // stop hack
 // from http://stackoverflow.com/questions/11642926/stop-close-webcam-which-is-opened-by-navigator-getusermedia
-var MediaStream = window.MediaStream || window.webkitMediaStream;;
+var MediaStream = window.MediaStream || window.webkitMediaStream;
+
 if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
 	MediaStream.prototype.stop = function () {
 		this.getAudioTracks().forEach(function (track) {
@@ -71,12 +72,30 @@ var ReactMediaRecorder = function (_Component) {
 		_this.pause = _this.pause.bind(_this);
 		_this.resume = _this.resume.bind(_this);
 		_this.initMediaRecorder = _this.initMediaRecorder.bind(_this);
+		_this.requestPermission = _this.requestPermission.bind(_this);
+		_this.getStream = _this.getStream.bind(_this);
+		_this.stopStream = _this.stopStream.bind(_this);
 		return _this;
 	}
 
 	_createClass(ReactMediaRecorder, [{
 		key: 'componentDidMount',
 		value: function componentDidMount() {
+			this.getStream();
+		}
+	}, {
+		key: 'componentWillUnmount',
+		value: function componentWillUnmount() {
+			this.mediaRecorder = null;
+			this.mediaChunk = [];
+
+			if (this.stream) {
+				this.stopStream();
+			}
+		}
+	}, {
+		key: 'getStream',
+		value: function getStream() {
 			var _this2 = this;
 
 			var width = this.props.width;
@@ -92,7 +111,7 @@ var ReactMediaRecorder = function (_Component) {
 					asked: true,
 					recording: false
 				});
-				_this2.props.onGranted();
+				_this2.props.onGranted(_this2.stream);
 
 				_this2.initMediaRecorder();
 			};
@@ -106,20 +125,26 @@ var ReactMediaRecorder = function (_Component) {
 			} else if (navigator.getUserMedia) {
 				navigator.getUserMedia(constraints, handleSuccess, handleFailed);
 			} else {
-				var errMessage = 'Browser doesn\'t support UserMedia API. Please try with another browser.';
+				var errMessage = 'Your Browser doesn\'t support UserMedia API. Please try with another browser.';
 				console.warn(errMessage);
 
 				this.props.onError(new Error(errMessage));
 			}
 		}
 	}, {
-		key: 'componentWillUnmount',
-		value: function componentWillUnmount() {
-			this.mediaRecorder = null;
-			this.mediaChunk = [];
-
+		key: 'stopStream',
+		value: function stopStream() {
 			this.stream.stop();
+			this.stream.getTracks().forEach(function (track) {
+				return track.stop();
+			});
 			this.stream = null;
+
+			this.props.onStreamClosed();
+
+			this.setState({
+				permission: false
+			});
 		}
 	}, {
 		key: 'initMediaRecorder',
@@ -166,9 +191,23 @@ var ReactMediaRecorder = function (_Component) {
 			}
 		}
 	}, {
+		key: 'requestPermission',
+		value: function requestPermission() {
+			this.props.onRequestPermission();
+			this.getStream();
+		}
+	}, {
 		key: 'start',
 		value: function start() {
 			if (!this.state.available) return;
+			if (!this.state.permission) {
+				var error = new Error('You have to get permission to start recording.');
+				return this.props.onError(error);
+			}
+			if (this.state.recording) {
+				var _error = new Error('MediaRecorder currently on active.');
+				return this.props.onError(_error);
+			}
 
 			this.mediaChunk = [];
 			this.mediaRecorder.start(this.props.timeSlice);
@@ -183,6 +222,11 @@ var ReactMediaRecorder = function (_Component) {
 		key: 'pause',
 		value: function pause() {
 			if (!this.state.recording) return;
+			if (!this.state.permission) {
+				var error = new Error('You have to get permission to start recording.');
+				return this.props.onError(error);
+			}
+
 			this.mediaRecorder.stop();
 
 			this.setState({ paused: true });
@@ -193,6 +237,11 @@ var ReactMediaRecorder = function (_Component) {
 		key: 'resume',
 		value: function resume() {
 			if (!this.state.recording) return;
+			if (!this.state.permission) {
+				var error = new Error('You have to get permission to start recording.');
+				return this.props.onError(error);
+			}
+
 			this.initMediaRecorder();
 			this.mediaRecorder.start(this.props.timeSlice);
 
@@ -204,6 +253,10 @@ var ReactMediaRecorder = function (_Component) {
 		key: 'stop',
 		value: function stop() {
 			if (!this.state.available) return;
+			if (!this.state.permission) {
+				var permissionError = new Error('You already stopped recording.');
+				return this.props.onError(permissionError);
+			}
 
 			this.mediaRecorder.stop();
 
@@ -213,6 +266,8 @@ var ReactMediaRecorder = function (_Component) {
 
 			var blob = new Blob(this.mediaChunk, { type: 'video/webm' });
 			this.props.onStop(blob);
+
+			this.stopStream();
 		}
 	}, {
 		key: 'render',
@@ -226,6 +281,7 @@ var ReactMediaRecorder = function (_Component) {
 				'div',
 				{ className: this.props.className },
 				this.props.render({
+					request: this.requestPermission,
 					start: this.start,
 					stop: this.stop,
 					pause: this.pause,
@@ -244,13 +300,15 @@ ReactMediaRecorder.propTypes = {
 	timeSlice: _propTypes2.default.number,
 	mimeType: _propTypes2.default.string,
 	render: _propTypes2.default.func,
+	onRequestPermission: _propTypes2.default.func,
 	onGranted: _propTypes2.default.func,
 	onDenied: _propTypes2.default.func,
 	onStart: _propTypes2.default.func,
 	onStop: _propTypes2.default.func,
 	onPause: _propTypes2.default.func,
 	onResume: _propTypes2.default.func,
-	onError: _propTypes2.default.func
+	onError: _propTypes2.default.func,
+	onStreamClosed: _propTypes2.default.func
 };
 ReactMediaRecorder.defaultProps = {
 	constraints: {
@@ -261,13 +319,15 @@ ReactMediaRecorder.defaultProps = {
 	timeSlice: 0,
 	mimeType: '',
 	render: function render() {},
+	onRequestPermission: function onRequestPermission() {},
 	onGranted: function onGranted() {},
 	onDenied: function onDenied() {},
 	onStart: function onStart() {},
 	onStop: function onStop() {},
 	onPause: function onPause() {},
 	onResume: function onResume() {},
-	onError: function onError() {}
+	onError: function onError() {},
+	onStreamClosed: function onStreamClosed() {}
 };
 
 exports.default = ReactMediaRecorder;
