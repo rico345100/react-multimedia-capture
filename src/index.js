@@ -206,7 +206,7 @@ class ReactMediaRecorder extends Component {
 
 		this.props.onResume(this.stream);
 	}
-	stop() {
+	stop(stopStream) {
 		if(!this.state.available) return;
 		if(!this.state.permission) {
 			const permissionError = new Error('You already stopped recording.');
@@ -222,7 +222,7 @@ class ReactMediaRecorder extends Component {
 		let blob = new Blob(this.mediaChunk, { type: 'video/webm' });
 		this.props.onStop(blob);
 		
-		this.stopStream();
+		if(stopStream) this.stopStream();
 	}
 	render() {
 		const asked = this.state.asked;
