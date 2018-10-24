@@ -89,8 +89,8 @@ Handler that fires on browser denied permission to access media devices.
 ### Function onStart(MediaStream stream)
 Handler that fires on user started recording.
 
-### Function onStop
-Handler that fires on user stopped recording.
+### Function onStop(Bool stopStream)
+Handler that fires on user stopped recording. This method will stop MediaStream, but if you want to stay alive, set stopStream to false.
 
 ### Function onPause
 Handler that fires on user paused recording.
@@ -130,3 +130,6 @@ Render the child components with functions. Each function actually manipulate re
 ### 1.2.2
 - Fixed Stop recording doesn't work anymore
 - Added functionality to request permission after stop recording
+
+### 1.2.3-
+- Updated Stop method to decide stop MediaStream or not.

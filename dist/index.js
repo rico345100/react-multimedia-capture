@@ -251,7 +251,7 @@ var ReactMediaRecorder = function (_Component) {
 		}
 	}, {
 		key: 'stop',
-		value: function stop() {
+		value: function stop(stopStream) {
 			if (!this.state.available) return;
 			if (!this.state.permission) {
 				var permissionError = new Error('You already stopped recording.');
@@ -267,7 +267,9 @@ var ReactMediaRecorder = function (_Component) {
 			var blob = new Blob(this.mediaChunk, { type: 'video/webm' });
 			this.props.onStop(blob);
 
-			this.stopStream();
+			if (stopStream) {
+				this.stopStream();
+			}
 		}
 	}, {
 		key: 'render',

@@ -222,7 +222,9 @@ class ReactMediaRecorder extends Component {
 		let blob = new Blob(this.mediaChunk, { type: 'video/webm' });
 		this.props.onStop(blob);
 		
-		if(stopStream) this.stopStream();
+		if(stopStream) {
+			this.stopStream();
+		}
 	}
 	render() {
 		const asked = this.state.asked;
