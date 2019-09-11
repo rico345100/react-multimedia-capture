@@ -57,6 +57,13 @@ class ReactMediaRecorder extends Component {
 	componentDidMount() {
 		this.getStream();
 	}
+	componentDidUpdate(prevProps) {
+		const { constraints: prevConstraints } = prevProps;
+		const { constraints } = this.props;
+		if (JSON.stringify(constraints) !== JSON.stringify(prevConstraints)) {
+			this.getStream()
+		}
+	}
 	componentWillUnmount() {
 		this.mediaRecorder = null;
 		this.mediaChunk = [];
