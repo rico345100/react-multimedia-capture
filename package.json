@@ -1,6 +1,6 @@
 {
   "name": "react-multimedia-capture",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "react-multimedia-capture is Multimedia capturing module via React, using HTML5 MediaDevice and MediaRecorder API",
   "main": "dist/index.js",
   "scripts": {

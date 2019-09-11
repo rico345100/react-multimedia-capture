@@ -84,6 +84,16 @@ var ReactMediaRecorder = function (_Component) {
 			this.getStream();
 		}
 	}, {
+		key: 'componentDidUpdate',
+		value: function componentDidUpdate(prevProps) {
+			var prevConstraints = prevProps.constraints;
+			var constraints = this.props.constraints;
+
+			if (JSON.stringify(constraints) !== JSON.stringify(prevConstraints)) {
+				this.getStream();
+			}
+		}
+	}, {
 		key: 'componentWillUnmount',
 		value: function componentWillUnmount() {
 			this.mediaRecorder = null;

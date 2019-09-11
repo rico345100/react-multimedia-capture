@@ -131,5 +131,8 @@ Render the child components with functions. Each function actually manipulate re
 - Fixed Stop recording doesn't work anymore
 - Added functionality to request permission after stop recording
 
-### 1.2.3-
+### 1.2.3
 - Updated Stop method to decide stop MediaStream or not.
+
+### 1.2.4
+- Updated to support changing camera.
