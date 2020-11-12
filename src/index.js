@@ -124,7 +124,11 @@ class ReactMediaRecorder extends Component {
 	initMediaRecorder() {
 		try {
 			let options = {};
-			let types = ['video/webm;codecs=vp8', 'video/webm', ''];
+			let types = [
+				this.props.contraints.audio ? 'video/webm;codecs=vp8,opus' : 'video/webm;codecs=vp8',
+				'video/webm',
+				''
+			];
 
 			if(this.props.mimeType) types.unshift(this.props.mimeType);
 
